@@ -1,5 +1,9 @@
 <html>
 <head> </head>
-<body></body>
+<body>
+	<div>
+		<input id="generate" type="button" value="Generate!">
+	</div>
+</body>
 
 </html>
