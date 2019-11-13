@@ -1,1 +1,71 @@
+$width : 25px;
+$height : 25px;
+$borderpx : 2px;
+$diapazon: -4px;
 
+body {
+  background: #0D1319;
+  overflow: hidden;
+}
+
+.container {
+  position: relative;
+  width: 0px;
+  margin: 220px auto;  
+}
+
+
+
+.container div {
+  position: absolute;
+  border-radius: 1000px;
+  border: $borderpx solid #0D1319;
+  animation-name: anim;
+  animation-duration: 3s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+  transition: all 1s linear;
+}
+
+@for $i from 1 through 40 {
+  .circle-#{$i} {
+    margin-top: -4.3px * $i;
+    margin-left: -4.2px * $i;
+    width: ($width*$i) / 3;
+    height: ($height*$i) / 3;
+    animation-delay: (0s + $i) / 12; 
+  }
+}
+
+@keyframes anim {
+  15% {
+    opacity: 0;
+    border: $borderpx solid #F54E4E;
+  }
+  25% {
+    opacity: 1;
+    transform: translateY(-$diapazon);
+    border: $borderpx solid #F59A4E;
+  }
+  35% {
+    border: $borderpx solid #F5D84E;
+  }
+  50% {
+    transform: translateY(-$diapazon) translateX($diapazon) rotateX(90deg);
+    border: $borderpx solid #3EC43E;
+  }
+  60% {
+    border: 2px solid #62C9C9;
+
+  }
+  75%{
+   transform: translateY(0px) translateX($diapazon);
+    border: $borderpx solid #133F67;
+  }
+  90% {
+    border: $borderpx solid  #8B74D4;
+  }
+  98% {
+    transform: translateY(0px) translateX(0x);
+  }
+}
