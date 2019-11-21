@@ -17,149 +17,74 @@ body{
 #cellule img{
 	display: block;
 	position: relative;
-	width: 7%;
-	height: 7%;
+	width: 12%;
+	height: 12%;
 }
 
 #cellule img.a{
-	margin-left: 180%;
-	top: 195px;
+	margin-left: 235%;
+	top: 340px;
 }
 
 #cellule img.b{
-	margin-left:72%;
-	top: 270px;
+	margin-left:120%;
+	top: 460px;
 	
 }
 
 #cellule img.c{
-	margin-left: 115%;
-	top: 235px;
+	margin-left: 195%;
+	top: 490px;
 	
 }
 
 #cellule img.d{
-	margin-left: 27%;
-	top: -180px;
+	margin-left: 100%;
+	top: 130px;
 	
 }
 
 #cellule img.e{
-	margin-left: 57%;
-	top: -30px;
+	margin-left: 167%;
+	top: 480px;
 	
 }
 
 #cellule2 img{
 	display: block;
 	position: relative;
-	width: 10%;
-	height: 10%;
+	width: 18%;
+	height: 18%;
 }
 
 #cellule2 img.a{
-	margin-left: 41%;
-	top: -250px;
+	margin-left: 100%;
+	top: 400px;
 }
 
 #cellule2 img.b{
-	margin-left: 40%;
-	top: -240px;
+	margin-left: 175%;
+	top: 430px;
 }
 
 #cellule2 img.c{
-	margin-left: 18%;
-	top: -640px;
+	margin-left: 200%;
+	top: -200px;
 }
 
 #cellule2 img.d{
-	margin-left: 62.5%;
-	top: -840px;
+	width: 15%;
+	height: 15%;
+	margin-left: 125%;
+	top: 10px;
 }
 
 #cellule2 img.e{
-	margin-left: 38%;
-	top: -730px;
+	width: 15%;
+	height: 15%;
+	margin-left: 140%;
+	top: -400px;
 }body{
 	background-color: black;
 	position: fixed;
-}
-
-#plante img{
-	position: fixed;
-	width: 65%;
-	height: 75%;
-	display: block;
-	margin-right: auto;
-	margin-left: 12%;
-	margin-top: 12.85%;
-
-}
-
-#cellule img{
-	display: block;
-	position: relative;
-	width: 7%;
-	height: 7%;
-}
-
-#cellule img.a{
-	margin-left: 140%;
-	top: 195px;
-}
-
-#cellule img.b{
-	margin-left:72%;
-	top: 270px;
-	
-}
-
-#cellule img.c{
-	margin-left: 115%;
-	top: 235px;
-	
-}
-
-#cellule img.d{
-	margin-left: 27%;
-	top: -180px;
-	
-}
-
-#cellule img.e{
-	margin-left: 57%;
-	top: -30px;
-	
-}
-
-#cellule2 img{
-	display: block;
-	position: relative;
-	width: 10%;
-	height: 10%;
-}
-
-#cellule2 img.a{
-	margin-left: 41%;
-	top: -250px;
-}
-
-#cellule2 img.b{
-	margin-left: 40%;
-	top: -240px;
-}
-
-#cellule2 img.c{
-	margin-left: 18%;
-	top: -640px;
-}
-
-#cellule2 img.d{
-	margin-left: 62.5%;
-	top: -840px;
-}
-
-#cellule2 img.e{
-	margin-left: 38%;
-	top: -730px;
 }
