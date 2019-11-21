@@ -17,24 +17,24 @@ body{
 #cellule img{
 	display: block;
 	position: relative;
-	width: 12%;
-	height: 12%;
+	width: 7%;
+	height: 7%;
 }
 
 #cellule img.a{
-	margin-left: 60%;
-	top: 185px;
+	margin-left: 140%;
+	top: 195px;
 }
 
 #cellule img.b{
-	margin-left: 29%;
-	top: 145px;
+	margin-left: 72%;
+	top: 270px;
 	
 }
 
 #cellule img.c{
-	margin-left: 22%;
-	top: 235px;
+	margin-left: 115%;
+	top: 300px;
 	
 }
 
