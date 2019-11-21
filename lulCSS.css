@@ -1,37 +1,83 @@
-html {
-	overflow: hidden;
-	touch-action: none;
-	content-zooming: none;
-}
-body {
-	position: absolute;
-	margin: 0;
-	padding: 0;
-	width: 100%;
-	height: 100%;
-	background:#222;
+body{
+	background-color: black;
+	position: fixed;
 }
 
-canvas {
-	position: absolute;
-	width: 100%;
-	height: 100%;
+#plante img{
+	position: fixed;
+	width: 65%;
+	height: 75%;
+	display: block;
+	margin-right: auto;
+	margin-left: 12%;
+	margin-top: 12.85%;
+
 }
 
-#generate {
-	position: absolute;
-	margin: 10px;
-	z-index: 1000;
-	cursor: pointer;
-	background: #F80;
-	line-height: 35px;
-	border: none;
-	outline: none;
-	color: #830;
-	font-size: 1em;
-	border-radius: 5px;
+#cellule img{
+	display: block;
+	position: relative;
+	width: 12%;
+	height: 12%;
 }
-#generate:hover {
-	background: #a40;
-	color: #ff0;
+
+#cellule img.a{
+	margin-left: 60%;
+	top: 185px;
+}
+
+#cellule img.b{
+	margin-left: 29%;
+	top: 145px;
+	
+}
+
+#cellule img.c{
+	margin-left: 22%;
+	top: 235px;
+	
+}
+
+#cellule img.d{
+	margin-left: 27%;
+	top: -180px;
+	
+}
+
+#cellule img.e{
+	margin-left: 57%;
+	top: -30px;
+	
+}
+
+#cellule2 img{
+	display: block;
+	position: relative;
+	width: 20%;
+	height: 20%;
+}
+
+#cellule2 img.a{
+	margin-left: 41%;
+	top: -250px;
+}
+
+#cellule2 img.b{
+	margin-left: 40%;
+	top: -240px;
+}
+
+#cellule2 img.c{
+	margin-left: 18%;
+	top: -640px;
+}
+
+#cellule2 img.d{
+	margin-left: 62.5%;
+	top: -840px;
+}
+
+#cellule2 img.e{
+	margin-left: 38%;
+	top: -730px;
 }
