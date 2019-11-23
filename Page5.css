@@ -1,12 +1,6 @@
-body
-  width 100vw
-  height 100vh
-  overflow hidden
-  background blue
-  
-	
-#canvas
-	position absolute
-	top 0
-	left 0
-	z-index 10
+body,
+html {
+  margin: 0px;
+  padding: 0px;
+  position: fixed;
+  background: rgb(30,30,30);
