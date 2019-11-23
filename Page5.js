@@ -1,161 +1,238 @@
-var canvas = document.getElementById("canvas");
+window.onload = function() {
+  let c = init("canvas").c,
+    canvas = init("canvas").canvas,
+    w = (canvas.width = window.innerWidth),
+    h = (canvas.height = window.innerHeight),
+    mouse = { x: false, y: false },
+    last_mouse = {};
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+  //initiation
 
-// Initialize the GL context
-var gl = canvas.getContext('webgl');
-if(!gl){
-  console.error("Unable to initialize WebGL.");
-}
+  function dist(p1x, p1y, p2x, p2y) {
+    return Math.sqrt(Math.pow(p2x - p1x, 2) + Math.pow(p2y - p1y, 2));
+  }
 
-//Time step
-var dt = 0.0003;
-//Time
-var time = 0.0;
+  class segment {
+    constructor(parent, l, a, first) {
+      this.first = first;
+      if (first) {
+        this.pos = {
+          x: parent.x,
+          y: parent.y
+        };
+      } else {
+        this.pos = {
+          x: parent.nextPos.x,
+          y: parent.nextPos.y
+        };
+      }
+      this.l = l;
+      this.ang = a;
+      this.nextPos = {
+        x: this.pos.x + this.l * Math.cos(this.ang),
+        y: this.pos.y + this.l * Math.sin(this.ang)
+      };
+    }
+    update(t) {
+      this.ang = Math.atan2(t.y - this.pos.y, t.x - this.pos.x);
+      this.pos.x = t.x + this.l * Math.cos(this.ang - Math.PI);
+      this.pos.y = t.y + this.l * Math.sin(this.ang - Math.PI);
+      this.nextPos.x = this.pos.x + this.l * Math.cos(this.ang);
+      this.nextPos.y = this.pos.y + this.l * Math.sin(this.ang);
+    }
+    fallback(t) {
+      this.pos.x = t.x;
+      this.pos.y = t.y;
+      this.nextPos.x = this.pos.x + this.l * Math.cos(this.ang);
+      this.nextPos.y = this.pos.y + this.l * Math.sin(this.ang);
+    }
+    show() {
+      c.lineTo(this.nextPos.x, this.nextPos.y);
+    }
+  }
 
-//************** Shader sources **************
+  class tentacle {
+    constructor(x, y, l, n, a) {
+      this.x = x;
+      this.y = y;
+      this.l = l;
+      this.n = n;
+      this.t = {};
+      this.rand = Math.random();
+      this.segments = [new segment(this, this.l / this.n, 0, true)];
+      for (let i = 1; i < this.n; i++) {
+        this.segments.push(
+          new segment(this.segments[i - 1], this.l / this.n, 0, false)
+        );
+      }
+    }
+    move(last_target, target) {
+      this.angle = Math.atan2(target.y-this.y,target.x-this.x);
+      this.dt = dist(last_target.x, last_target.y, target.x, target.y)+5;
+      this.t = {
+        x: target.x - 0.8*this.dt*Math.cos(this.angle),
+        y: target.y - 0.8*this.dt*Math.sin(this.angle)
+      };
+      if(this.t.x){
+        this.segments[this.n - 1].update(this.t);
+      }else{
+        this.segments[this.n - 1].update(target);
+      }
+      for (let i = this.n - 2; i >= 0; i--) {
+        this.segments[i].update(this.segments[i + 1].pos);
+      }
+      if (
+        dist(this.x, this.y, target.x, target.y) <=
+        this.l + dist(last_target.x, last_target.y, target.x, target.y)
+      ) {
+        this.segments[0].fallback({ x: this.x, y: this.y });
+        for (let i = 1; i < this.n; i++) {
+          this.segments[i].fallback(this.segments[i - 1].nextPos);
+        }
+      }
+    }
+    show(target) {
+      if (dist(this.x, this.y, target.x, target.y) <= this.l) {
+        c.globalCompositeOperation = "color-dodge";
+        c.beginPath();
+        c.lineTo(this.x, this.y);
+        for (let i = 0; i < this.n; i++) {
+          this.segments[i].show();
+        }
+        c.strokeStyle = "hsl("+(this.rand*60+180)+",100%," + (this.rand * 60 + 25) + "%)";
+        c.lineWidth = this.rand * 2;
+        c.lineCap="round";
+        c.lineJoin="round";
+        c.stroke();
+        c.globalCompositeOperation = "source-over";
+      }
+    }
+    show2(target) {
+      c.beginPath();
+      if (dist(this.x, this.y, target.x, target.y) <= this.l) {
+        c.arc(this.x, this.y, 2*this.rand+1, 0, 2 * Math.PI);
+        c.fillStyle = "white";
+      } else {
+        c.arc(this.x, this.y, this.rand*2, 0, 2 * Math.PI);
+        c.fillStyle = "darkcyan";
+      }
+      c.fill();
+    }
+  }
 
-var vertexSource = `
-attribute vec2 position;
-void main() {
-  gl_Position = vec4(position, 0.0, 1.0);
-}
-`;
+  let maxl = 300,
+    minl = 50,
+    n = 30,
+    numt = 500,
+    tent = [],
+    clicked = false,
+    target = { x: 0, y: 0 },
+    last_target = {},
+    t = 0,
+    q = 10;
 
-var fragmentSource = `
-precision highp float;
+  for (let i = 0; i < numt; i++) {
+    tent.push(
+      new tentacle(
+        Math.random() * w,
+        Math.random() * h,
+        Math.random() * (maxl - minl) + minl,
+        n,
+        Math.random() * 2 * Math.PI
+      )
+    );
+  }
+  function draw() {
+    //animation
+    if (mouse.x) {
+      target.errx = mouse.x - target.x;
+      target.erry = mouse.y - target.y;
+    } else {
+      target.errx =
+        w / 2 +
+        (h / 2 - q) *
+          Math.sqrt(2) *
+          Math.cos(t) /
+          (Math.pow(Math.sin(t), 2) + 1) -
+        target.x;
+      target.erry =
+        h / 2 +
+        (h / 2 - q) *
+          Math.sqrt(2) *
+          Math.cos(t) *
+          Math.sin(t) /
+          (Math.pow(Math.sin(t), 2) + 1) -
+        target.y;
+    }
 
-uniform float width;
-uniform float height;
-vec2 resolution = vec2(width, height);
+    target.x += target.errx / 10;
+    target.y += target.erry / 10;
 
-uniform float time;
-
-void main(){
-
-	//Normalized pixel coordinates (from 0 to 1)
-  vec2 uv = gl_FragCoord.xy/resolution.xy;
-
-	float t = time/3.4;
+    t += 0.01;
     
-  vec2 pos = uv;
-  pos.y /= resolution.x/resolution.y;
-  pos = 10.0*(vec2(0.5, 0.5) - pos);
-    
-  float strength = 0.2;
-  for(float i = 1.0; i < 9.0; i+=1.0){ 
-  	pos.x += ceil(strength) * sin(-777.0+t*i+.4 * pos.y);
-    pos.y += strength * cos(992.0*t+i*1.2 * pos.x)-t*19.5;
-	}
+    c.beginPath();
+    c.arc(target.x, target.y, dist(last_target.x, last_target.y, target.x, target.y)+5, 0, 2 * Math.PI);
+    c.fillStyle = "hsl(210,100%,80%)";
+    c.fill();
 
-	//Time varying pixel colour
-  vec3 col = 0.6 + 0.9*sin(floor(time+pos.xyx+vec3(0,4,2)));
-	
-  //Fragment colour
-  gl_FragColor = vec4(col,1.0);
-}
-`;
-
-//************** Utility functions **************
-
-window.addEventListener( 'resize', onWindowResize, false );
-
-function onWindowResize(){
-  canvas.width  = window.innerWidth;
-  canvas.height = window.innerHeight;
-	gl.viewport(0, 0, canvas.width, canvas.height);
-  gl.uniform1f(widthHandle, window.innerWidth);
-  gl.uniform1f(heightHandle, window.innerHeight);
-}
-
-
-//Compile shader and combine with source
-function compileShader(shaderSource, shaderType){
-  var shader = gl.createShader(shaderType);
-  gl.shaderSource(shader, shaderSource);
-  gl.compileShader(shader);
-  if(!gl.getShaderParameter(shader, gl.COMPILE_STATUS)){
-  	throw "Shader compile failed with: " + gl.getShaderInfoLog(shader);
+    for (i = 0; i < numt; i++) {
+      tent[i].move(last_target, target);
+      tent[i].show2(target);
+    }
+    for (i = 0; i < numt; i++) {
+      tent[i].show(target);
+    }
+    last_target.x = target.x;
+    last_target.y = target.y;
   }
-  return shader;
-}
 
-//From https://codepen.io/jlfwong/pen/GqmroZ
-//Utility to complain loudly if we fail to find the attribute/uniform
-function getAttribLocation(program, name) {
-  var attributeLocation = gl.getAttribLocation(program, name);
-  if (attributeLocation === -1) {
-  	throw 'Cannot find attribute ' + name + '.';
-  }
-  return attributeLocation;
-}
+  canvas.addEventListener(
+    "mousemove",
+    function(e) {
+      last_mouse.x = mouse.x;
+      last_mouse.y = mouse.y;
 
-function getUniformLocation(program, name) {
-  var attributeLocation = gl.getUniformLocation(program, name);
-  if (attributeLocation === -1) {
-  	throw 'Cannot find uniform ' + name + '.';
-  }
-  return attributeLocation;
-}
-
-//************** Create shaders **************
-
-//Create vertex and fragment shaders
-var vertexShader = compileShader(vertexSource, gl.VERTEX_SHADER);
-var fragmentShader = compileShader(fragmentSource, gl.FRAGMENT_SHADER);
-
-//Create shader programs
-var program = gl.createProgram();
-gl.attachShader(program, vertexShader);
-gl.attachShader(program, fragmentShader);
-gl.linkProgram(program);
-
-gl.useProgram(program);
-
-//Set up rectangle covering entire canvas 
-var vertexData = new Float32Array([
-  -1.0,  1.0, 	// top left
-  -1.0, -1.0, 	// bottom left
-   1.0,  1.0, 	// top right
-   1.0, -1.0, 	// bottom right
-]);
-
-//Create vertex buffer
-var vertexDataBuffer = gl.createBuffer();
-gl.bindBuffer(gl.ARRAY_BUFFER, vertexDataBuffer);
-gl.bufferData(gl.ARRAY_BUFFER, vertexData, gl.STATIC_DRAW);
-
-// Layout of our data in the vertex buffer
-var positionHandle = getAttribLocation(program, 'position');
-
-gl.enableVertexAttribArray(positionHandle);
-gl.vertexAttribPointer(positionHandle,
-  2, 				// position is a vec2 (2 values per component)
-  gl.FLOAT, // each component is a float
-  false, 		// don't normalize values
-  2 * 4, 		// two 4 byte float components per vertex (32 bit float is 4 bytes)
-  0 				// how many bytes inside the buffer to start from
+      mouse.x = e.pageX - this.offsetLeft;
+      mouse.y = e.pageY - this.offsetTop;
+    },
+    false
   );
 
-//Set uniform handle
-var timeHandle = getUniformLocation(program, 'time');
-var widthHandle = getUniformLocation(program, 'width');
-var heightHandle = getUniformLocation(program, 'height');
+  canvas.addEventListener("mouseleave", function(e) {
+    mouse.x = false;
+    mouse.y = false;
+  });
 
-gl.uniform1f(widthHandle, window.innerWidth);
-gl.uniform1f(heightHandle, window.innerHeight);
+  canvas.addEventListener(
+    "mousedown",
+    function(e) {
+      clicked = true;
+    },
+    false
+  );
 
-function draw(){
-  //Update time
-  time += dt;
+  canvas.addEventListener(
+    "mouseup",
+    function(e) {
+      clicked = false;
+    },
+    false
+  );
 
-	//Send uniforms to program
-  gl.uniform1f(timeHandle, time);
-  //Draw a triangle strip connecting vertices 0-4
-  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  function loop() {
+    window.requestAnimFrame(loop);
+    // c.fillStyle="rgba(30,30,30,0.1)";
+    // c.fillRect(0, 0, w, h);
+    c.clearRect(0, 0, w, h);
+    draw();
+  }
 
-  requestAnimationFrame(draw);
-}
+  window.addEventListener("resize", function() {
+    (w = canvas.width = window.innerWidth),
+      (h = canvas.height = window.innerHeight);
+    loop();
+  });
 
-draw();
+  loop();
+  setInterval(loop, 1000 / 60);
+};
