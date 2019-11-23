@@ -1,16 +1,36 @@
 body{
-	background-color: black;
+	margin: 0;
+	padding: 0;
 	position: fixed;
+	background: black;
 }
-
+#background{
+	margin: 0;
+	position: fixed;
+	background: #555;
+}
+#particles-js{
+	position: relative;
+	left: 0;
+	top: 0;
+	z-index: -1;
+	height: 100vh;
+	background: transparent;
+}
+#container{
+	position: absolute;
+	z-index: 100;
+	top: 1rem;
+	text-align: center;
+    height: 10rem;
+    margin-left: 13%; 
+}
 #plante img{
 	position: fixed;
 	width: 65%;
 	height: 75%;
 	display: block;
-	margin-right: auto;
-	margin-left: 12%;
-	margin-top: 12.85%;
+	margin-top: 12%;
 
 }
 
@@ -22,31 +42,31 @@ body{
 }
 
 #cellule img.a{
-	margin-left: 235%;
-	top: 340px;
+	margin-left: 190%;
+	top: 21em;
 }
 
 #cellule img.b{
-	margin-left:120%;
-	top: 460px;
+	margin-left:75%;
+	top: 29em;
 	
 }
 
 #cellule img.c{
-	margin-left: 195%;
-	top: 490px;
+	margin-left: 150%;
+	top: 31em;
 	
 }
 
 #cellule img.d{
-	margin-left: 100%;
-	top: 130px;
+	margin-left: 55%;
+	top: 6em;
 	
 }
 
 #cellule img.e{
-	margin-left: 167%;
-	top: 480px;
+	margin-left: 124%;
+	top: 31em;
 	
 }
 
@@ -58,33 +78,30 @@ body{
 }
 
 #cellule2 img.a{
-	margin-left: 100%;
-	top: 400px;
+	margin-left: 55%;
+	top: 28em;
 }
 
 #cellule2 img.b{
-	margin-left: 175%;
-	top: 430px;
+	margin-left: 130%;
+	top: 27em;
 }
 
 #cellule2 img.c{
-	margin-left: 200%;
-	top: -200px;
+	margin-left: 155%;
+	top: -13em;
 }
 
 #cellule2 img.d{
 	width: 15%;
 	height: 15%;
-	margin-left: 125%;
-	top: 10px;
+	margin-left: 80%;
+	top: 0em;
 }
 
 #cellule2 img.e{
 	width: 15%;
 	height: 15%;
-	margin-left: 140%;
-	top: -400px;
-}body{
-	background-color: black;
-	position: fixed;
+	margin-left: 95%;
+	top: -22em;
 }
