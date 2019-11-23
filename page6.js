@@ -1,105 +1,115 @@
-var c = document.querySelector('.c') /* the canvas element */, 
-    
-    ctx = c.getContext('2d') /* canvas context */, 
-    w /* canvas height */, h /* canvas height */, 
-    
-    t = 0, 
-        
-    max = Math.max, 
-    pow = Math.pow, sqrt = Math.sqrt, 
-    PI = Math.PI, 
-    sin = Math.sin, cos = Math.cos /* just me being lazy */,
+var canvas = document.createElement("canvas"),
+  c = canvas.getContext("2d");
+var w = canvas.width = window.innerWidth,
+  h = canvas.height = window.innerHeight;
 
-    /* spiral vars */
-    /* https://twitter.com/jackrugile/status/420459385505079296 */
-    n = 8 /* shades */, 
-    m = 4 /* shade repetitions */, 
-    p = 32 /* dots on each branch */, 
-    r,
-    beta /* branch specific */, gamma /* dot specific */, 
-    x0, y0, x1, y1, 
-    hue,  
-    t_step = 1/60, 
-    requestID;
+document.body.appendChild(canvas);
 
-/* FUNCTIONS */
-var trimUnit = function(input_str, unit) {
-  return parseInt(input_str.split(unit)[0], 10);
-};
+//you can change number of reflections here.
+//---------------------------------
+var number_of_reflections = 14,
+//---------------------------------
+    arr = new Array(number_of_reflections),
+    press = false; 
 
-var spiral = function() {  
-  ctx.clearRect(0, 0, w, h);
-    
-  for(var i = 0; i < n*m; i++) {
-    beta = i*2*PI/(n*m);
-    x0 = 0;
-    
-    /* Begin the path up here */
-    ctx.beginPath();
-    hue = i*360/n;
-    ctx.translate(w/2, h/2);
-    ctx.rotate(t/3);
-    /* only need to set the fillstyle once up here now */
-    ctx.fillStyle = 'hsl(' + hue + ', 100%, 65%)';
-        
-    for(var j = 0; j < p; j++) {      
-      gamma = j*2*PI/p;
-      r = max(1, pow(2*(j*(p - j)), .43) - 10);
-      
-      x0 += 3.4*r;
-      y0 = x0*sin(gamma + 2*t + x0/99)/5;
-      
-      /* change of coordinates */
-      x1 = x0*cos(beta) - y0*sin(beta);
-      y1 = x0*sin(beta) + y0*cos(beta);
-      
-      /* move it to the position of the arc */ 
-      /* (remove this for a cool effect) */
-      ctx.moveTo(x1,y1);
-      /* setup the arc path here */
-      ctx.arc(x1, y1, r, 0, 2*PI);
+
+
+function mirror(){
+  this.x = [];
+  this.y = [];
+  this.calc = function(angle,dist){
+    this.angle = angle;
+    this.dist = dist;
+ if(press){   this.x.push(this.dist*Math.cos(this.angle)+w/2);
+    this.y.push(this.dist*Math.sin(this.angle)+h/2);
+          }
+  };
+  this.show = function(){
+    c.beginPath();
+    for(k = 0; k < this.x.length; k++){
+    c.lineTo(this.x[k],this.y[k]);
+    c.lineWidth="1";
+    c.strokeStyle="white";
     }
-    
-    /* close the 1 path that now is a combination of all the arcs */
-    ctx.closePath();
-    /* fill the whole path only once now */
-    ctx.fill();
-    /* 
-     * reason for moving the fill out of the inner loop:
-     * see https://twitter.com/loktar00/status/420369245378076672
-     * (thanks!)
-     */
-    ctx.rotate(-t/3);
-    ctx.translate(-w/2, -h/2);
-  }
-  
-  t += t_step;
-  
-  requestID = requestAnimationFrame(spiral)
+    c.stroke();
+    for(k = 0; k < this.x.length; k++){
+    c.beginPath();
+    c.lineTo(w/2,h/2);
+    c.lineTo(this.x[k],this.y[k]);
+    c.lineWidth="0.4";
+    c.strokeStyle="black";
+    c.stroke();
+    }
+  };
+}
+
+for(i=0;i<arr.length;i++){
+  arr[i] = new mirror();
+}
+
+function draw() {
+for(i=0;i<arr.length;i++){
+  arr[i].calc(Math.atan2(h/2-mouse.y,w/2-mouse.x)+(2*(i)*Math.PI/arr.length)+Math.PI,Math.sqrt(Math.pow(w/2-mouse.x,2)+Math.pow(h/2-mouse.y,2)));
+  arr[i].show();
+}
+}
+
+canvas.addEventListener('mousedown',function(){
+  press = true;
+},false);
+
+canvas.addEventListener('mouseup',function(){
+  press = false;
+},false);
+
+var mouse = {
+  x: w / 2,
+  y: h / 2
+};
+var last_mouse = {
+  x: 0,
+  y: 0
 };
 
-var initCanvas = function() {
-  var s /* canvas style set via CSS */ ;
-  
+canvas.addEventListener(
+  "mousemove",
+  function(e) {
+    last_mouse.x = mouse.x;
+    last_mouse.y = mouse.y;
+
+    mouse.x = e.pageX - this.offsetLeft;
+    mouse.y = e.pageY - this.offsetTop;
+  },
+  false
+);
+
+window.requestAnimFrame = (function() {
+  return window.requestAnimationFrame ||
+    window.webkitRequestAnimationFrame ||
+    window.mozRequestAnimationFrame ||
+    window.oRequestAnimationFrame ||
+    window.msRequestAnimationFrame ||
+    function(callback) {
+      window.setTimeout(callback, 1000 / 60);
+    };
+})();
+
+function loop() {
+
   setTimeout(function() {
-    s = getComputedStyle(c);
-    w = c.width = trimUnit(s.width, 'px');
-    h = c.height = trimUnit(s.height, 'px');
-    
-    /* if resizing, make sure to stop the previous animation 
-     * before starting a new one */
-    /* cancelAnimationFrame(requestID) should be 
-     * the requestID returned by requestAnimationFrame 
-     * thanks @FWeinb! */
-    if(requestID) {
-      cancelAnimationFrame(requestID);
-    }
-    spiral();
-  }, 0);
-};
+    window.requestAnimFrame(loop);
+    c.fillStyle = "rgba(30,30,30,1)";
+    c.fillRect(0, 0, w, h);
+    draw();
+  }, 1000 / 60);
 
-/* STEPS */
-initCanvas();
+}
 
-/* fix looks on resize */
-addEventListener('resize', initCanvas, false);
+window.addEventListener('resize', function() {
+  w = canvas.width = window.innerWidth,
+    h = canvas.height = window.innerHeight;
+  c.fillStyle = "rgba(30,30,30,1)";
+  c.fillRect(0, 0, w, h);
+});
+
+loop();
