@@ -13,7 +13,6 @@ var number_of_reflections = 14,
     press = false; 
 
 
-
 function mirror(){
   this.x = [];
   this.y = [];
