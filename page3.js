@@ -1,106 +1,239 @@
-var c = document.getElementById("c");
-var ctx = c.getContext("2d");
-var cw = c.width = window.innerWidth;
-var ch = c.height = window.innerHeight;
-var cx = cw / 2,
-  cy = ch / 2;
-var rad = Math.PI / 180;
-var howMany = 120;
-var isDragging = false;
-var previous = null;
+window.onload = function() {
+  let c = init("canvas").c,
+    canvas = init("canvas").canvas,
+    w = (canvas.width = window.innerWidth),
+    h = (canvas.height = window.innerHeight),
+    mouse = { x: false, y: false },
+    last_mouse = {};
 
-var mousePosition = {
-  x: cx,
-  y: cy
-}
-var circles = [];
-var speed = 0.1;
+  //initiation
 
-ctx.lineWidth = .2;
-
-function Circle(n) {
-  this.r = 50;
-  this.x = cx + this.r * Math.cos(3 * n * rad);
-  this.y = cy + this.r * Math.sin(3 * n * rad) * Math.cos(3 * n * rad);
-  this.previous = null;
-}
-
-function drawCircle(circle) {
-
-  ctx.beginPath();
-  ctx.arc(circle.x, circle.y, circle.r, 0, 2 * Math.PI);
-  ctx.stroke();
-}
-
-function createCircles(howMany) {
-  for (var i = 0; i < howMany; i++) {
-    circles[i] = new Circle(i);
+  function dist(p1x, p1y, p2x, p2y) {
+    return Math.sqrt(Math.pow(p2x - p1x, 2) + Math.pow(p2y - p1y, 2));
   }
-}
 
-function updateCircles(mousePosition) {
-
-  for (i = 0; i < circles.length; i++) {
-
-    if (i == 0) {
-      circles.previous = mousePosition
-    } else {
-      circles.previous = circles[i - 1]
+  class segment {
+    constructor(parent, l, a, first) {
+      this.first = first;
+      if (first) {
+        this.pos = {
+          x: parent.x,
+          y: parent.y
+        };
+      } else {
+        this.pos = {
+          x: parent.nextPos.x,
+          y: parent.nextPos.y
+        };
+      }
+      this.l = l;
+      this.ang = a;
+      this.nextPos = {
+        x: this.pos.x + this.l * Math.cos(this.ang),
+        y: this.pos.y + this.l * Math.sin(this.ang)
+      };
     }
-    var deltaX = circles.previous.x - circles[i].x;
-    var deltaY = circles.previous.y - circles[i].y;
-
-    if (Math.abs(deltaX) < 2 && Math.abs(deltaY) < 2) {
-      // hic sunt leones
-    } else {
-      circles[i].x += deltaX * speed;
-      circles[i].y += deltaY * speed;
+    update(t) {
+      this.ang = Math.atan2(t.y - this.pos.y, t.x - this.pos.x);
+      this.pos.x = t.x + this.l * Math.cos(this.ang - Math.PI);
+      this.pos.y = t.y + this.l * Math.sin(this.ang - Math.PI);
+      this.nextPos.x = this.pos.x + this.l * Math.cos(this.ang);
+      this.nextPos.y = this.pos.y + this.l * Math.sin(this.ang);
+    }
+    fallback(t) {
+      this.pos.x = t.x;
+      this.pos.y = t.y;
+      this.nextPos.x = this.pos.x + this.l * Math.cos(this.ang);
+      this.nextPos.y = this.pos.y + this.l * Math.sin(this.ang);
+    }
+    show() {
+      c.lineTo(this.nextPos.x, this.nextPos.y);
     }
   }
 
-}
-
-function drawCircles() {
-  for (var i = 0; i < circles.length; i += 1) {
-    drawCircle(circles[i]);
+  class tentacle {
+    constructor(x, y, l, n, a) {
+      this.x = x;
+      this.y = y;
+      this.l = l;
+      this.n = n;
+      this.t = {};
+      this.rand = Math.random();
+      this.segments = [new segment(this, this.l / this.n, 0, true)];
+      for (let i = 1; i < this.n; i++) {
+        this.segments.push(
+          new segment(this.segments[i - 1], this.l / this.n, 0, false)
+        );
+      }
+    }
+    move(last_target, target) {
+      this.angle = Math.atan2(target.y-this.y,target.x-this.x);
+      this.dt = dist(last_target.x, last_target.y, target.x, target.y)+5;
+      this.t = {
+        x: target.x - 0.8*this.dt*Math.cos(this.angle),
+        y: target.y - 0.8*this.dt*Math.sin(this.angle)
+      };
+      if(this.t.x){
+        this.segments[this.n - 1].update(this.t);
+      }else{
+        this.segments[this.n - 1].update(target);
+      }
+      for (let i = this.n - 2; i >= 0; i--) {
+        this.segments[i].update(this.segments[i + 1].pos);
+      }
+      if (
+        dist(this.x, this.y, target.x, target.y) <=
+        this.l + dist(last_target.x, last_target.y, target.x, target.y)
+      ) {
+        this.segments[0].fallback({ x: this.x, y: this.y });
+        for (let i = 1; i < this.n; i++) {
+          this.segments[i].fallback(this.segments[i - 1].nextPos);
+        }
+      }
+    }
+    show(target) {
+      if (dist(this.x, this.y, target.x, target.y) <= this.l) {
+        c.globalCompositeOperation = "color-dodge";
+        c.beginPath();
+        c.lineTo(this.x, this.y);
+        for (let i = 0; i < this.n; i++) {
+          this.segments[i].show();
+        }
+        c.strokeStyle = "hsl("+(this.rand*60+180)+",100%," + (this.rand * 60 + 25) + "%)";
+        c.lineWidth = this.rand * 2;
+        c.lineCap="round";
+        c.lineJoin="round";
+        c.stroke();
+        c.globalCompositeOperation = "source-over";
+      }
+    }
+    show2(target) {
+      c.beginPath();
+      if (dist(this.x, this.y, target.x, target.y) <= this.l) {
+        c.arc(this.x, this.y, 2*this.rand+1, 0, 2 * Math.PI);
+        c.fillStyle = "white";
+      } else {
+        c.arc(this.x, this.y, this.rand*2, 0, 2 * Math.PI);
+        c.fillStyle = "darkcyan";
+      }
+      c.fill();
+    }
   }
-}
 
-function Draw() {
-  ctx.clearRect(0, 0, cw, ch);
-  updateCircles(mousePosition);
-  drawCircles();
-  requestId = window.requestAnimationFrame(Draw);
-}
+  let maxl = 300,
+    minl = 50,
+    n = 30,
+    numt = 500,
+    tent = [],
+    clicked = false,
+    target = { x: 0, y: 0 },
+    last_target = {},
+    t = 0,
+    q = 10;
 
-createCircles(howMany);
-drawCircles();
-
-c.addEventListener('mousedown', function(e) {
-  isDragging = true;
-  mousePosition = oMousePos(c, e);
-  requestId = window.requestAnimationFrame(Draw);
-}, false);
-
-c.addEventListener('mouseup', function(evt) {
-  isDragging = false;
-}, false);
-
-c.addEventListener('mouseout', function(evt) {
-  isDragging = false;
-}, false);
-
-c.addEventListener('mousemove', function(e) {
-  if (isDragging) {
-    mousePosition = oMousePos(c, e);
-    requestId = window.requestAnimationFrame(Draw);
+  for (let i = 0; i < numt; i++) {
+    tent.push(
+      new tentacle(
+        Math.random() * w,
+        Math.random() * h,
+        Math.random() * (maxl - minl) + minl,
+        n,
+        Math.random() * 2 * Math.PI
+      )
+    );
   }
-}, false);
+  function draw() {
+    //animation
+    if (mouse.x) {
+      target.errx = mouse.x - target.x;
+      target.erry = mouse.y - target.y;
+    } else {
+      target.errx =
+        w / 2 +
+        (h / 2 - q) *
+          Math.sqrt(2) *
+          Math.cos(t) /
+          (Math.pow(Math.sin(t), 2) + 1) -
+        target.x;
+      target.erry =
+        h / 2 +
+        (h / 2 - q) *
+          Math.sqrt(2) *
+          Math.cos(t) *
+          Math.sin(t) /
+          (Math.pow(Math.sin(t), 2) + 1) -
+        target.y;
+    }
 
-function oMousePos(canvas, evt) {
-  var ClientRect = canvas.getBoundingClientRect();
-  return { //objeto
-    x: Math.round(evt.clientX - ClientRect.left),
-    y: Math.round(evt.clientY - ClientRect.top)
+    target.x += target.errx / 10;
+    target.y += target.erry / 10;
+
+    t += 0.01;
+    
+    c.beginPath();
+    c.arc(target.x, target.y, dist(last_target.x, last_target.y, target.x, target.y)+5, 0, 2 * Math.PI);
+    c.fillStyle = "hsl(210,100%,80%)";
+    c.fill();
+
+    for (i = 0; i < numt; i++) {
+      tent[i].move(last_target, target);
+      tent[i].show2(target);
+    }
+    for (i = 0; i < numt; i++) {
+      tent[i].show(target);
+    }
+    last_target.x = target.x;
+    last_target.y = target.y;
   }
-}
+
+  canvas.addEventListener(
+    "mousemove",
+    function(e) {
+      last_mouse.x = mouse.x;
+      last_mouse.y = mouse.y;
+
+      mouse.x = e.pageX - this.offsetLeft;
+      mouse.y = e.pageY - this.offsetTop;
+    },
+    false
+  );
+
+  canvas.addEventListener("mouseleave", function(e) {
+    mouse.x = false;
+    mouse.y = false;
+  });
+
+  canvas.addEventListener(
+    "mousedown",
+    function(e) {
+      clicked = true;
+    },
+    false
+  );
+
+  canvas.addEventListener(
+    "mouseup",
+    function(e) {
+      clicked = false;
+    },
+    false
+  );
+
+  function loop() {
+    window.requestAnimFrame(loop);
+    // c.fillStyle="rgba(30,30,30,0.1)";
+    // c.fillRect(0, 0, w, h);
+    c.clearRect(0, 0, w, h);
+    draw();
+  }
+
+  window.addEventListener("resize", function() {
+    (w = canvas.width = window.innerWidth),
+      (h = canvas.height = window.innerHeight);
+    loop();
+  });
+
+  loop();
+  setInterval(loop, 1000 / 60);
+};
+
