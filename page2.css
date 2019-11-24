@@ -127,3 +127,11 @@ body{
     50% { background-position: 400% 0; }
     100% { background-position: 0 0; }
 }
+
+#plante{
+top: 20px; 
+left: 570px;
+width: 90px;
+height: 90px;
+position: absolute;
+}
