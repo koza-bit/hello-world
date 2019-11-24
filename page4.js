@@ -169,4 +169,3 @@ window.addEventListener("resize", function() {
 });
 
 loop();
-
