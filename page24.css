@@ -10,6 +10,14 @@ canvas{
   cursor: none;
 }
 
+img.plan {
+position: absolute;
+top: 20px;
+left: 1200px;
+width: 90px;
+height: 90px;
+}
+
 .glow-on-hover {
     width: 220px;
     height: 50px;
