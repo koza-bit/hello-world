@@ -4,6 +4,15 @@ html {
   padding: 0px;
   position: fixed;
   background: rgb(30,30,30);
+  position : fixed;
+}
+
+img.plan {
+position: absolute;
+top: 20px;
+left: 1200px;
+width: 90px;
+height: 90px;
 }
 
 .glow-on-hover {
