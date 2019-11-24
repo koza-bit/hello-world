@@ -1,6 +1,4 @@
 
-
-
 * {
   position:absolute;
 }
@@ -11,6 +9,7 @@ html, body,{
   background:#000;
   width:100%;
   height:100%;
+  background-position: fixed;
 }
 .glow-on-hover {
     width: 220px;
