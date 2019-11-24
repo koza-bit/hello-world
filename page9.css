@@ -1,7 +1,6 @@
 
-
-
 * {
+    margin: 0;
   position:absolute;
 }
 
@@ -11,6 +10,7 @@ html, body,{
   background:#000;
   width:100%;
   height:100%;
+  background-position: fixed;
 }
 .glow-on-hover {
     width: 220px;
@@ -20,8 +20,8 @@ html, body,{
     color: #fff;
     background: #111;
     cursor: pointer;
-    position: absolute;
-    right:10px;
+    position: relative;
+    left:765%;
     top:30px;
     z-index: 0;
     border-radius: 10px;
