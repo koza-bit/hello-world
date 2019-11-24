@@ -60,6 +60,14 @@ body {
     border-radius: 10px;
 }
 
+img.plan {
+position: absolute;
+top: 20px;
+left: 1200px;
+width: 90px;
+height: 90px;
+}
+
 @keyframes glowing {
     0% { background-position: 0 0; }
     50% { background-position: 400% 0; }
