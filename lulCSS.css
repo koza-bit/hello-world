@@ -37,71 +37,72 @@ body{
 #cellule img{
 	display: block;
 	position: relative;
-	width: 12%;
-	height: 12%;
+	width: 10%;
+	height: 10%;
 }
 
 #cellule img.a{
-	margin-left: 190%;
-	top: 21em;
+	margin-left: 125%;
+	top: 14em;
 }
 
 #cellule img.b{
-	margin-left:75%;
-	top: 29em;
+	margin-left:50%;
+	top: 18em;
 	
 }
 
 #cellule img.c{
-	margin-left: 150%;
-	top: 31em;
+	margin-left: 100%;
+	top: 19em;
 	
 }
 
 #cellule img.d{
-	margin-left: 55%;
-	top: 6em;
+	margin-left: 37%;
+	top: 2em;
+	
 	
 }
 
 #cellule img.e{
-	margin-left: 124%;
-	top: 31em;
+	margin-left: 82%;
+	top: 17em;
 	
 }
 
 #cellule2 img{
 	display: block;
 	position: relative;
-	width: 18%;
-	height: 18%;
+	width: 15%;
+	height: 15%;
 }
 
 #cellule2 img.a{
-	margin-left: 55%;
-	top: 28em;
+	margin-left: 35%;
+	top: 13em;
 }
 
 #cellule2 img.b{
-	margin-left: 130%;
-	top: 27em;
+	margin-left: 88%;
+	top: 13em;
 }
 
 #cellule2 img.c{
-	margin-left: 155%;
+	margin-left: 100%;
 	top: -13em;
 }
 
 #cellule2 img.d{
-	width: 15%;
+	width: 13%;
 	height: 15%;
-	margin-left: 80%;
-	top: 0em;
+	margin-left: 50%;
+	top: -7em;
 }
 
 #cellule2 img.e{
-	width: 15%;
+	width: 13%;
 	height: 15%;
-	margin-left: 95%;
-	top: -22em;
+	margin-left: 60%;
+	top: -25em;
 }
